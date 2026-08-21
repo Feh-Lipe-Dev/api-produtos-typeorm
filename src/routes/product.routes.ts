@@ -9,4 +9,9 @@ productRoutes.post(
     (req, res) => productController.create(req, res)
 )
 
+productRoutes.get(
+    '/products',
+    (req, res) => productController.findAll(req, res)
+)
+
 export default productRoutes;

@@ -14,4 +14,13 @@ export class ProductController {
 
         return res.status(201).json(saveProduct);
     }
+
+    async findAll(req: Request, res: Response): Promise<Response> {
+
+        const productRepository = AppDataSource.getRepository(Product);
+
+        const products = await productRepository.find();
+
+        return res.status(200).json(products)
+    }
 }
