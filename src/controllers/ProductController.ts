@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { AppDataSource } from "../database/data-source";
 import { Product } from "../entities/Product";
+import { ILike } from "typeorm";
 
 export class ProductController {
 
@@ -37,6 +38,25 @@ export class ProductController {
         }
 
         return res.status(200).json(product);
+    }
+
+    async searchByName(req: Request, res: Response): Promise<Response> {
+
+        const productRepository = AppDataSource.getRepository(Product);
+
+        const name: string = String(req.query.nome || '');
+
+        if (!name.trim()) {
+            return res.status(400).json({ message: 'O parâmetro "nome" é obrigatório!' });
+        }
+
+        const products = await productRepository.find({
+            where: {
+                nome: ILike(`%${name}%`)
+            }
+        })
+
+        return res.status(200).json(products);
     }
 
     async update(req: Request, res: Response): Promise<Response> {
