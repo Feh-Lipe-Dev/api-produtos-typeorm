@@ -24,4 +24,9 @@ productRoutes.put(
     (req, res) => productController.update(req, res)
 )
 
+productRoutes.delete(
+    '/products/:id',
+    (req, res) => productController.delete(req, res)
+)
+
 export default productRoutes;
