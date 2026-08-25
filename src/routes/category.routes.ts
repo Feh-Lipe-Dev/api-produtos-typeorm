@@ -9,4 +9,9 @@ categoryRoutes.post(
     (req, res) => categoryController.create(req, res)
 )
 
+categoryRoutes.get(
+    '/categories/:id',
+    (req, res) => categoryController.findOne(req, res)
+)
+
 export default categoryRoutes;
