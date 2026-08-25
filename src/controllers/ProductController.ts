@@ -4,7 +4,6 @@ import { Product } from "../entities/Product";
 import {
     ILike,
     MoreThan,
-    LessThanOrEqual,
     Between
 } from "typeorm";
 
@@ -131,7 +130,7 @@ export class ProductController {
 
         const products = await productRepository.find({
             where: {
-                estoque: LessThanOrEqual(0)
+                estoque: 0
             }
         })
 
