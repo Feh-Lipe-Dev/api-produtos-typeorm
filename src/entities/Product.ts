@@ -1,4 +1,12 @@
-import { Column, CreateDateColumn, Entity, PrimaryColumn, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import {
+    Column,
+    CreateDateColumn,
+    Entity,
+    PrimaryGeneratedColumn,
+    UpdateDateColumn,
+    ManyToOne
+} from "typeorm";
+import { Category } from "./Category";
 
 @Entity('products')
 export class Product {
@@ -16,6 +24,11 @@ export class Product {
 
     @Column('int', { default: 0 })
     estoque!: number;
+
+    @ManyToOne(
+        () => Category, category => category.products
+    )
+    category!: Category;
 
     @CreateDateColumn()
     criadoEm!: Date;
