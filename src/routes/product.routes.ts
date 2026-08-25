@@ -24,17 +24,17 @@ productRoutes.get(
 
 productRoutes.get(
     '/products/stock/available',
-    (req, res) => productController.availableStock(req, res)
+    (req, res) => productController.findAvailable(req, res)
 )
 
 productRoutes.get(
     '/products/stock/empty',
-    (req, res) => productController.emptyStock(req, res)
+    (req, res) => productController.findOutOfStock(req, res)
 )
 
 productRoutes.get(
     '/products/filter',
-    (req, res) => productController.filterPriceBetween(req, res)
+    (req, res) => productController.findByPriceRange(req, res)
 )
 
 productRoutes.put(

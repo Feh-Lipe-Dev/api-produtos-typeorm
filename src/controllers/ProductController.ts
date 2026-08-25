@@ -1,11 +1,7 @@
 import { Request, Response } from "express";
 import { AppDataSource } from "../database/data-source";
 import { Product } from "../entities/Product";
-import {
-    ILike,
-    MoreThan,
-    Between
-} from "typeorm";
+import { ILike, MoreThan, Between } from "typeorm";
 
 export class ProductController {
 
@@ -111,7 +107,7 @@ export class ProductController {
         return res.status(204).send();
     }
 
-    async availableStock(req: Request, res: Response): Promise<Response> {
+    async findAvailable(req: Request, res: Response): Promise<Response> {
 
         const productRepository = AppDataSource.getRepository(Product);
 
@@ -124,7 +120,7 @@ export class ProductController {
         return res.status(200).json(products);
     }
 
-    async emptyStock(req: Request, res: Response): Promise<Response> {
+    async findOutOfStock(req: Request, res: Response): Promise<Response> {
 
         const productRepository = AppDataSource.getRepository(Product);
 
@@ -137,7 +133,7 @@ export class ProductController {
         return res.status(200).json(products);
     }
 
-    async filterPriceBetween(req: Request, res: Response): Promise<Response> {
+    async findByPriceRange(req: Request, res: Response): Promise<Response> {
 
         const productRepository = AppDataSource.getRepository(Product);
 
