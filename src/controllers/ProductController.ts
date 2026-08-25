@@ -146,7 +146,15 @@ export class ProductController {
         const max: number = Number(req.query.max);
 
         if (isNaN(min) || isNaN(max)) {
-            return res.status(400).json({ error: 'os parâmetros min e max devem ser números!' });
+            return res.status(400).json({
+                error: 'os parâmetros min e max devem ser números!'
+            });
+        }
+
+        if (min > max) {
+            return res.status(400).json({
+                error: 'O valor mínimo não pode ser maior que o valor máximo!'
+            });
         }
 
         const products = await productRepository.find({
@@ -155,6 +163,6 @@ export class ProductController {
             }
         })
 
-        return res.status(200).json(products);
+        return res.json(products);
     }
 }
