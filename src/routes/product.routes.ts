@@ -23,8 +23,18 @@ productRoutes.get(
 )
 
 productRoutes.get(
-    '/products/:id',
-    (req, res) => productController.findOne(req, res)
+    '/products/stock/available',
+    (req, res) => productController.availableStock(req, res)
+)
+
+productRoutes.get(
+    '/products/stock/empty',
+    (req, res) => productController.emptyStock(req, res)
+)
+
+productRoutes.get(
+    '/products/filter',
+    (req, res) => productController.filterPriceBetween(req, res)
 )
 
 productRoutes.put(
@@ -35,6 +45,11 @@ productRoutes.put(
 productRoutes.delete(
     '/products/:id',
     (req, res) => productController.delete(req, res)
+)
+
+productRoutes.get(
+    '/products/:id',
+    (req, res) => productController.findOne(req, res)
 )
 
 export default productRoutes;

@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { AppDataSource } from "../database/data-source";
 import { Product } from "../entities/Product";
-import { ILike } from "typeorm";
+import { ILike, MoreThan, LessThanOrEqual, Between } from "typeorm";
 
 export class ProductController {
 
@@ -31,10 +31,10 @@ export class ProductController {
 
         const id: number = Number(req.params.id);
 
-        const product = await productRepository.findOneBy({id})
+        const product = await productRepository.findOneBy({ id })
 
-        if(!product){
-            return res.status(404).json({ message: 'Produto não enconttrado.'})
+        if (!product) {
+            return res.status(404).json({ message: 'Produto não enconttrado.' })
         }
 
         return res.status(200).json(product);
@@ -65,10 +65,10 @@ export class ProductController {
 
         const id: number = Number(req.params.id);
 
-        const product = await productRepository.findOneBy({id})
+        const product = await productRepository.findOneBy({ id })
 
-        if(!product){
-            return res.status(404).json({ message: 'Produto não enconttrado.'})
+        if (!product) {
+            return res.status(404).json({ message: 'Produto não enconttrado.' })
         }
 
         productRepository.merge(product, req.body);
@@ -84,14 +84,60 @@ export class ProductController {
 
         const id: number = Number(req.params.id);
 
-        const product = await productRepository.findOneBy({id})
+        const product = await productRepository.findOneBy({ id })
 
-        if(!product){
-            return res.status(404).json({ message: 'Produto não enconttrado.'})
+        if (!product) {
+            return res.status(404).json({ message: 'Produto não enconttrado.' })
         }
 
         await productRepository.remove(product);
 
         return res.status(204).send();
+    }
+
+    async availableStock(req: Request, res: Response): Promise<Response> {
+
+        const productRepository = AppDataSource.getRepository(Product);
+
+        const products = await productRepository.find({
+            where: {
+                estoque: MoreThan(0)
+            }
+        })
+
+        return res.status(200).json(products);
+    }
+
+    async emptyStock(req: Request, res: Response): Promise<Response> {
+
+        const productRepository = AppDataSource.getRepository(Product);
+
+        const products = await productRepository.find({
+            where: {
+                estoque: LessThanOrEqual(0)
+            }
+        })
+
+        return res.status(200).json(products);
+    }
+
+    async filterPriceBetween(req: Request, res: Response): Promise<Response> {
+
+        const productRepository = AppDataSource.getRepository(Product);
+
+        const min: number = Number(req.query.min);
+        const max: number = Number(req.query.max);
+
+        if (isNaN(min) || isNaN(max)) {
+            return res.status(400).json({ error: 'os parâmetros min e max devem ser números!' });
+        }
+
+        const products = await productRepository.find({
+            where: {
+                preco: Between(min, max)
+            }
+        })
+
+        return res.status(200).json(products);
     }
 }
