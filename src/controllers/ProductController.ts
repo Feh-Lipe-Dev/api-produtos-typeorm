@@ -11,9 +11,9 @@ export class ProductController {
 
         const product = productRepository.create(req.body);
 
-        const saveProduct = await productRepository.save(product);
+        const savedProduct = await productRepository.save(product); //persistência
 
-        return res.status(201).json(saveProduct);
+        return res.status(201).json(savedProduct);
     }
 
     async findAll(req: Request, res: Response): Promise<Response> {
