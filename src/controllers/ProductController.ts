@@ -1,7 +1,12 @@
 import { Request, Response } from "express";
 import { AppDataSource } from "../database/data-source";
 import { Product } from "../entities/Product";
-import { ILike, MoreThan, LessThanOrEqual, Between } from "typeorm";
+import {
+    ILike,
+    MoreThan,
+    LessThanOrEqual,
+    Between
+} from "typeorm";
 
 export class ProductController {
 
@@ -30,6 +35,10 @@ export class ProductController {
         const productRepository = AppDataSource.getRepository(Product);
 
         const id: number = Number(req.params.id);
+
+        if (!Number.isInteger(id) || id <= 0) {
+            return res.status(400).json({ message: 'ID inválido!' });
+        }
 
         const product = await productRepository.findOneBy({ id })
 
@@ -65,6 +74,10 @@ export class ProductController {
 
         const id: number = Number(req.params.id);
 
+        if (!Number.isInteger(id) || id <= 0) {
+            return res.status(400).json({ message: 'ID inválido!' });
+        }
+
         const product = await productRepository.findOneBy({ id })
 
         if (!product) {
@@ -83,6 +96,10 @@ export class ProductController {
         const productRepository = AppDataSource.getRepository(Product);
 
         const id: number = Number(req.params.id);
+
+        if (!Number.isInteger(id) || id <= 0) {
+            return res.status(400).json({ message: 'ID inválido!' });
+        }
 
         const product = await productRepository.findOneBy({ id })
 
