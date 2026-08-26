@@ -1,1 +1,5 @@
 opencode -s ses_fc9bc7ff8ffeazotPperVVa3Io
+
+Bibliotecas instaladas em 26/08/26
+* class-validator
+* class-transformer
