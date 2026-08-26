@@ -3,6 +3,7 @@ import { AppDataSource } from "../database/data-source";
 import { Product } from "../entities/Product";
 import { Category } from "../entities/Category";
 import { ILike, MoreThan, Between } from "typeorm";
+import { AppError } from "../errors/AppError";
 
 export class ProductController {
 
@@ -18,9 +19,7 @@ export class ProductController {
         })
 
         if (!category) {
-            return res.status(404).json({
-                message: 'Categoria não encontrada'
-            })
+            throw new AppError('Categoria não encontrada', 404);
         }
 
         const product = productRepository.create({ nome, descricao, preco, estoque, category });
