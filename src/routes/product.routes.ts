@@ -3,6 +3,7 @@ import { ProductController } from "../controllers/ProductController";
 import { validateDto } from "../middlewares/validate";
 import { CreateProductDto } from "../dtos/CreateProductDto";
 import { UpdateProductDto } from "../dtos/UpdateProductDto";
+import { asyncHandler } from "../middlewares/asyncHandler";
 
 const productRoutes = Router();
 const productController = new ProductController();
@@ -10,12 +11,14 @@ const productController = new ProductController();
 productRoutes.post(
     '/products',
     validateDto(CreateProductDto),
-    (req, res) => productController.create(req, res)
+    asyncHandler(
+        (req, res) => productController.create(req, res)
+    )
 )
 
 productRoutes.get(
     '/products',
-    (req, res) => productController.findAll(req, res)
+    asyncHandler((req, res) => productController.findAll(req, res))
 )
 
 // searchByName antes da rota de buscar por ID
@@ -23,38 +26,38 @@ productRoutes.get(
 // fazendo a req "supor" que o input para essa rota seja o do ID
 productRoutes.get(
     '/products/search',
-    (req, res) => productController.searchByName(req, res)
+    asyncHandler((req, res) => productController.searchByName(req, res))
 )
 
 productRoutes.get(
     '/products/stock/available',
-    (req, res) => productController.findAvailable(req, res)
+    asyncHandler((req, res) => productController.findAvailable(req, res))
 )
 
 productRoutes.get(
     '/products/stock/empty',
-    (req, res) => productController.findOutOfStock(req, res)
+    asyncHandler((req, res) => productController.findOutOfStock(req, res))
 )
 
 productRoutes.get(
     '/products/filter',
-    (req, res) => productController.findByPriceRange(req, res)
+    asyncHandler((req, res) => productController.findByPriceRange(req, res))
 )
 
 productRoutes.put(
     '/products/:id',
     validateDto(UpdateProductDto),
-    (req, res) => productController.update(req, res)
+    asyncHandler((req, res) => productController.update(req, res))
 )
 
 productRoutes.delete(
     '/products/:id',
-    (req, res) => productController.delete(req, res)
+    asyncHandler((req, res) => productController.delete(req, res))
 )
 
 productRoutes.get(
     '/products/:id',
-    (req, res) => productController.findOne(req, res)
+    asyncHandler((req, res) => productController.findOne(req, res))
 )
 
 export default productRoutes;
