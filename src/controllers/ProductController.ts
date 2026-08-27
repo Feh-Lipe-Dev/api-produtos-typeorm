@@ -8,8 +8,8 @@ import { AppError } from "../errors/AppError";
 export class ProductController {
 
     async create(req: Request, res: Response): Promise<Response> {
-        const productRepository = AppDataSource.getRepository(Product);
 
+        const productRepository = AppDataSource.getRepository(Product);
         const categoryRepository = AppDataSource.getRepository(Category);
 
         const { nome, descricao, preco, estoque, categoryId } = req.body;
@@ -17,6 +17,12 @@ export class ProductController {
         const category = await categoryRepository.findOneBy({
             id: Number(categoryId)
         })
+
+        const existProduct = await productRepository.existsBy({ nome: req.body.nome });
+
+        if (existProduct) {
+            throw new AppError('Produto já cadastrado', 409);
+        }
 
         if (!category) {
             throw new AppError('Categoria não encontrada', 404);
@@ -48,8 +54,8 @@ export class ProductController {
 
         const id: number = Number(req.params.id);
 
-        if (!Number.isInteger(id) || id <= 0) {
-            return res.status(400).json({ message: 'ID inválido!' });
+        if (Number.isNaN(id)) {
+            throw new AppError('ID do produto inválido', 400);
         }
 
         const product = await productRepository.findOne({
@@ -60,7 +66,7 @@ export class ProductController {
         })
 
         if (!product) {
-            return res.status(404).json({ message: 'Produto não enconttrado.' })
+            throw new AppError('Produto não enconttrado.', 404)
         }
 
         return res.status(200).json(product);
@@ -94,14 +100,10 @@ export class ProductController {
 
         const id: number = Number(req.params.id);
 
-        if (!Number.isInteger(id) || id <= 0) {
-            return res.status(400).json({ message: 'ID inválido!' });
-        }
-
         const product = await productRepository.findOneBy({ id })
 
         if (!product) {
-            return res.status(404).json({ message: 'Produto não enconttrado.' })
+            throw new AppError('Produto não enconttrado.', 404)
         }
 
         productRepository.merge(product, req.body);
@@ -118,7 +120,7 @@ export class ProductController {
         const id: number = Number(req.params.id);
 
         if (!Number.isInteger(id) || id <= 0) {
-            return res.status(400).json({ message: 'ID inválido!' });
+            throw new AppError('Produto não enconttrado.', 404)
         }
 
         const product = await productRepository.findOneBy({ id })
