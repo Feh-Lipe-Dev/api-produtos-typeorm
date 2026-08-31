@@ -2,17 +2,21 @@ import { Request, Response } from "express";
 import { AppDataSource } from "../database/data-source";
 import { Product } from "../entities/Product";
 import { Category } from "../entities/Category";
-import { ILike, MoreThan, Between } from "typeorm";
+import { MoreThan, Between } from "typeorm";
 import { AppError } from "../errors/AppError";
+import { CreateProductDto } from "../dtos/CreateProductDto";
+import { SearchProductDto } from "../dtos/SearchProductDto";
 
 export class ProductController {
 
+    // --- CRIAR PRODUTO --- \\
     async create(req: Request, res: Response): Promise<Response> {
 
         const productRepository = AppDataSource.getRepository(Product);
         const categoryRepository = AppDataSource.getRepository(Category);
 
-        const { nome, descricao, preco, estoque, categoryId } = req.body;
+        const { nome, descricao, preco, estoque, categoryId } = req.body as
+            CreateProductDto;
 
         const category = await categoryRepository.findOneBy({
             id: Number(categoryId)
@@ -35,6 +39,7 @@ export class ProductController {
         return res.status(201).json(savedProduct);
     }
 
+    // --- LISTAR PRODUTOS --- \\
     async findAll(req: Request, res: Response): Promise<Response> {
 
         const productRepository = AppDataSource.getRepository(Product);
@@ -48,6 +53,7 @@ export class ProductController {
         return res.status(200).json(products)
     }
 
+    // --- BUSCA POR ID --- \\
     async findOne(req: Request, res: Response): Promise<Response> {
 
         const productRepository = AppDataSource.getRepository(Product);
@@ -72,28 +78,78 @@ export class ProductController {
         return res.status(200).json(product);
     }
 
-    async searchByName(req: Request, res: Response): Promise<Response> {
+    // --- BUSCA GENERALIZADA --- \\
+    async search(req: Request, res: Response): Promise<Response> {
+        const {
+            nome,
+            categoryId,
+            minPrice,
+            maxPrice,
+            category,
+            sort,
+            order,
+            page,
+            limit
+        } = req.queryDto as SearchProductDto;
 
-        const productRepository = AppDataSource.getRepository(Product);
+        const repository = AppDataSource.getRepository(Product);
 
-        const name: string = String(req.query.nome || '');
+        const query = repository.
+            createQueryBuilder("product")
+            .leftJoinAndSelect("product.category", "category");
 
-        if (!name.trim()) {
-            return res.status(400).json({ message: 'O parâmetro "nome" é obrigatório!' });
+        if (nome) {
+            query.andWhere(
+                "product.nome ILIKE :nome", { nome: `%${nome}%` }
+            );
         }
 
-        const products = await productRepository.find({
-            where: {
-                nome: ILike(`%${name}%`)
-            },
-            relations: {
-                category: true
+        if (categoryId) {
+            query.andWhere("product.categoryId = :categoryId", { categoryId: Number(categoryId) });
+        }
+
+        if (category) {
+            query.andWhere("category.nome ILIKE :category", { category: `${category}%` });
+        }
+
+        if (minPrice) {
+            query.andWhere("product.preco >= :minPrice", { minPrice: Number(minPrice) });
+        }
+
+        if (maxPrice) {
+            query.andWhere("product.preco <= :maxPrice", { maxPrice: Number(maxPrice) });
+        }
+
+        const allowedSortFields: Record<string, string> = {
+            name: "product.nome",
+            price: "product.preco",
+            stock: "product.estoque"
+        }
+
+        const sortField = allowedSortFields[String(sort)] ?? "product.nome";
+        const sortOrder = String(order).toUpperCase() === "DESC" ? "DESC" : "ASC";
+        query.orderBy(sortField, sortOrder);
+
+        const currentPage = Number(page) || 1;
+        const itemsPerPage = Number(limit) || 10;
+        const offset = (currentPage - 1) * itemsPerPage;
+        query.skip(offset).take(itemsPerPage);
+
+        const [products, total] = await query.getManyAndCount();
+        const totalPages = Math.ceil(total / itemsPerPage);
+
+        return res.json({
+            data: products,
+            pagination: {
+                page: currentPage,
+                limit: itemsPerPage,
+                total,
+                totalPages
             }
         })
-
-        return res.status(200).json(products);
     }
 
+    // --- ATUALIZR PRODUTO --- \\
     async update(req: Request, res: Response): Promise<Response> {
 
         const productRepository = AppDataSource.getRepository(Product);
@@ -113,6 +169,7 @@ export class ProductController {
         return res.status(200).json(updatedProduct);
     }
 
+    // --- EXCLUSÃO --- \\
     async delete(req: Request, res: Response): Promise<Response> {
 
         const productRepository = AppDataSource.getRepository(Product);
@@ -134,6 +191,7 @@ export class ProductController {
         return res.status(204).send();
     }
 
+    // --- BUSCA DE PRODUTO COM ESTOQUE --- \\
     async findAvailable(req: Request, res: Response): Promise<Response> {
 
         const productRepository = AppDataSource.getRepository(Product);
@@ -150,6 +208,7 @@ export class ProductController {
         return res.status(200).json(products);
     }
 
+    // --- BUSCA DE PRODUTO SEM ESTOQUE --- \\
     async findOutOfStock(req: Request, res: Response): Promise<Response> {
 
         const productRepository = AppDataSource.getRepository(Product);
@@ -166,6 +225,7 @@ export class ProductController {
         return res.status(200).json(products);
     }
 
+    // --- BUSCA POR FAIXA DE PREÇO --- \\
     async findByPriceRange(req: Request, res: Response): Promise<Response> {
 
         const productRepository = AppDataSource.getRepository(Product);
