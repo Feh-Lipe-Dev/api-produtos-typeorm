@@ -3,6 +3,7 @@ import { ProductController } from "../controllers/ProductController";
 import { validateDto } from "../middlewares/validate";
 import { CreateProductDto } from "../dtos/CreateProductDto";
 import { UpdateProductDto } from "../dtos/UpdateProductDto";
+import { SearchProductDto } from "../dtos/SearchProductDto";
 import { asyncHandler } from "../middlewares/asyncHandler";
 
 const productRoutes = Router();
@@ -11,9 +12,7 @@ const productController = new ProductController();
 productRoutes.post(
     '/products',
     validateDto(CreateProductDto),
-    asyncHandler(
-        (req, res) => productController.create(req, res)
-    )
+    asyncHandler((req, res) => productController.create(req, res))
 )
 
 productRoutes.get(
@@ -21,12 +20,10 @@ productRoutes.get(
     asyncHandler((req, res) => productController.findAll(req, res))
 )
 
-// searchByName antes da rota de buscar por ID
-// colocar uma rota product barra "alguma coisa" depois do param ID pode bugar a requisição
-// fazendo a req "supor" que o input para essa rota seja o do ID
 productRoutes.get(
     '/products/search',
-    asyncHandler((req, res) => productController.searchByName(req, res))
+    validateDto(SearchProductDto),
+    asyncHandler((req, res) => productController.search(req, res))
 )
 
 productRoutes.get(
